@@ -3,6 +3,7 @@ class SarvamTranslator {
         this.apiKey = null;
         this.translationHistory = [];
         this.currentTranslation = null;
+        this.apiEndpoint = 'https://api.sarvam.ai/translate';
         this.init();
     }
 
@@ -231,69 +232,84 @@ class SarvamTranslator {
     }
 
     async callTranslationAPI(text, sourceLanguage, targetLanguage) {
-        // Since we don't have access to the actual Sarvam AI SDK, 
-        // we'll simulate the API call structure as described
         try {
-            // Simulating the SDK structure provided in the user query
             const response = await this.makeAPIRequest({
                 input: text,
                 source_language_code: sourceLanguage === 'auto' ? 'en-IN' : sourceLanguage,
                 target_language_code: targetLanguage,
-                speaker_gender: "Male"
+                speaker_gender: "Male",
+                model: "mayura:v1"
             });
 
+            // Handle different response formats
             if (response && response.translated_text) {
                 return response.translated_text;
             } else if (response && response.choices && response.choices[0]) {
                 return response.choices[0].message.content;
+            } else if (response && response.translation) {
+                return response.translation;
+            } else if (response && typeof response === 'string') {
+                return response;
             } else {
                 throw new Error('Invalid response format from translation service');
             }
         } catch (error) {
             console.error('API call failed:', error);
-            throw new Error('Translation service is currently unavailable. Please check your API key and try again.');
+            
+            // Provide more specific error messages
+            if (error.message.includes('401') || error.message.includes('unauthorized')) {
+                throw new Error('Invalid API key. Please check your Sarvam AI API key.');
+            } else if (error.message.includes('429') || error.message.includes('rate limit')) {
+                throw new Error('Rate limit exceeded. Please try again in a moment.');
+            } else if (error.message.includes('400') || error.message.includes('bad request')) {
+                throw new Error('Invalid request. Please check your input text and selected languages.');
+            } else if (error.message.includes('Network Error') || error.message.includes('fetch')) {
+                throw new Error('Network error. Please check your internet connection.');
+            } else {
+                throw new Error(error.message || 'Translation service is currently unavailable.');
+            }
         }
     }
 
     async makeAPIRequest(params) {
-        // This would be the actual API call to Sarvam AI
-        // For now, we'll create a mock response to demonstrate functionality
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                // Mock translation responses for demonstration
-                const mockTranslations = {
-                    'Hello, how are you?': {
-                        'hi-IN': 'नमस्ते, आप कैसे हैं?',
-                        'ta-IN': 'வணக்கம், நீங்கள் எப்படி இருக்கிறீர்கள்?',
-                        'te-IN': 'నమస్కారం, మీరు ఎలా ఉన్నారు?',
-                        'bn-IN': 'হ্যালো, আপনি কেমন আছেন?'
-                    },
-                    'Good morning': {
-                        'hi-IN': 'शुभ प्रभात',
-                        'ta-IN': 'காலை வணக्கम்',
-                        'te-IN': 'శుభోదయం',
-                        'bn-IN': 'সুপ্রভাত'
-                    }
-                };
+        try {
+            const response = await fetch(this.apiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Subscription-Key': this.apiKey
+                },
+                body: JSON.stringify(params)
+            });
 
-                // Check if we have a mock translation
-                const mockResult = mockTranslations[params.input];
-                if (mockResult && mockResult[params.target_language_code]) {
-                    resolve({
-                        translated_text: mockResult[params.target_language_code]
-                    });
-                } else {
-                    // Generate a mock translation for demonstration
-                    resolve({
-                        translated_text: `[Translated to ${this.getLanguageName(params.target_language_code)}] ${params.input}`
-                    });
+            if (!response.ok) {
+                const errorText = await response.text();
+                let errorMessage;
+                
+                try {
+                    const errorData = JSON.parse(errorText);
+                    errorMessage = errorData.message || errorData.error || `HTTP ${response.status}: ${response.statusText}`;
+                } catch {
+                    errorMessage = `HTTP ${response.status}: ${response.statusText}`;
                 }
-            }, 1000 + Math.random() * 2000); // Simulate API delay
-        });
+                
+                throw new Error(errorMessage);
+            }
+
+            const data = await response.json();
+            return data;
+
+        } catch (error) {
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                throw new Error('Network Error: Unable to connect to translation service');
+            }
+            throw error;
+        }
     }
 
     getLanguageName(code) {
         const languages = {
+            'auto': 'Auto-detect',
             'en-IN': 'English',
             'hi-IN': 'Hindi',
             'bn-IN': 'Bengali',
@@ -404,19 +420,25 @@ class SarvamTranslator {
 
         historyContainer.innerHTML = this.translationHistory.map(item => `
             <div class="history-item">
-                <div class="source-text">${item.original}</div>
-                <div class="translated-text">${item.translated}</div>
+                <div class="source-text">${this.escapeHtml(item.original)}</div>
+                <div class="translated-text">${this.escapeHtml(item.translated)}</div>
                 <div class="language-info">
                     <span>
                         ${this.getLanguageName(item.sourceLang)} → ${this.getLanguageName(item.targetLang)}
                         <small class="text-muted ms-2">${item.duration}s</small>
                     </span>
-                    <button class="btn btn--outline copy-btn" onclick="translator.copyHistoryItem('${item.translated}')">
+                    <button class="btn btn--outline copy-btn" onclick="translator.copyHistoryItem('${this.escapeHtml(item.translated)}')">
                         <i class="bi bi-clipboard me-1"></i>Copy
                     </button>
                 </div>
             </div>
         `).join('');
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     copyHistoryItem(text) {
