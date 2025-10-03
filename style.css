@@ -1112,6 +1112,7 @@ button:focus-visible,
 
 /* Success state styling */
 .translation-output.success {
+    color: white;
     border-color: var(--color-success);
     background-color: rgba(var(--color-success-rgb), 0.05);
 }
