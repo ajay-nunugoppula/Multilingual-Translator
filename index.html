@@ -1,1 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sarvam AI Multilingual Translator</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <header class="row py-4">
+            <div class="col-12 text-center">
+                <h1 class="display-4 mb-2">
+                    <i class="bi bi-translate text-primary me-3"></i>
+                    Sarvam AI Translator
+                </h1>
+                <p class="lead text-muted">Powerful multilingual translation for Indian languages</p>
+            </div>
+        </header>
 
+        <!-- API Key Section -->
+        <section class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-key me-2"></i>API Configuration
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label for="apiKey" class="form-label">Sarvam AI API Key</label>
+                                    <input type="password" class="form-control" id="apiKey" 
+                                           placeholder="Enter your Sarvam AI API key"
+                                           autocomplete="new-password">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">&nbsp;</label>
+                                <div class="d-grid">
+                                    <button type="button" class="btn btn--primary" id="saveApiKey">
+                                        <i class="bi bi-check-circle me-2"></i>Save Key
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="apiKeyStatus" class="mt-2"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Translation Section -->
+        <section class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-arrow-left-right me-2"></i>Translation
+                        </h5>
+                        
+                        <!-- Language Selection -->
+                        <div class="row mb-3">
+                            <div class="col-md-5">
+                                <label for="sourceLanguage" class="form-label">From</label>
+                                <select class="form-control" id="sourceLanguage">
+                                    <option value="auto">Auto-detect</option>
+                                    <option value="en-IN">English</option>
+                                    <option value="hi-IN">Hindi</option>
+                                    <option value="bn-IN">Bengali</option>
+                                    <option value="ta-IN">Tamil</option>
+                                    <option value="te-IN">Telugu</option>
+                                    <option value="mr-IN">Marathi</option>
+                                    <option value="gu-IN">Gujarati</option>
+                                    <option value="kn-IN">Kannada</option>
+                                    <option value="ml-IN">Malayalam</option>
+                                    <option value="pa-IN">Punjabi</option>
+                                    <option value="od-IN">Odia</option>
+                                    <option value="as-IN">Assamese</option>
+                                    <option value="ur-IN">Urdu</option>
+                                    <option value="sa-IN">Sanskrit</option>
+                                    <option value="ne-IN">Nepali</option>
+                                    <option value="ks-IN">Kashmiri</option>
+                                    <option value="kok-IN">Konkani</option>
+                                    <option value="mni-IN">Manipuri</option>
+                                    <option value="brx-IN">Bodo</option>
+                                    <option value="doi-IN">Dogri</option>
+                                    <option value="mai-IN">Maithili</option>
+                                    <option value="sat-IN">Santali</option>
+                                    <option value="sd-IN">Sindhi</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end justify-content-center">
+                                <button type="button" class="btn btn--outline" id="swapLanguages" title="Swap languages">
+                                    <i class="bi bi-arrow-left-right"></i>
+                                </button>
+                            </div>
+                            <div class="col-md-5">
+                                <label for="targetLanguage" class="form-label">To</label>
+                                <select class="form-control" id="targetLanguage">
+                                    <option value="hi-IN">Hindi</option>
+                                    <option value="en-IN">English</option>
+                                    <option value="bn-IN">Bengali</option>
+                                    <option value="ta-IN">Tamil</option>
+                                    <option value="te-IN">Telugu</option>
+                                    <option value="mr-IN">Marathi</option>
+                                    <option value="gu-IN">Gujarati</option>
+                                    <option value="kn-IN">Kannada</option>
+                                    <option value="ml-IN">Malayalam</option>
+                                    <option value="pa-IN">Punjabi</option>
+                                    <option value="od-IN">Odia</option>
+                                    <option value="as-IN">Assamese</option>
+                                    <option value="ur-IN">Urdu</option>
+                                    <option value="sa-IN">Sanskrit</option>
+                                    <option value="ne-IN">Nepali</option>
+                                    <option value="ks-IN">Kashmiri</option>
+                                    <option value="kok-IN">Konkani</option>
+                                    <option value="mni-IN">Manipuri</option>
+                                    <option value="brx-IN">Bodo</option>
+                                    <option value="doi-IN">Dogri</option>
+                                    <option value="mai-IN">Maithili</option>
+                                    <option value="sat-IN">Santali</option>
+                                    <option value="sd-IN">Sindhi</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Text Input and Output -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label for="inputText" class="form-label">Enter text to translate</label>
+                                        <small class="text-muted" id="charCount">0 characters</small>
+                                    </div>
+                                    <textarea class="form-control" id="inputText" rows="6" 
+                                              placeholder="Type or paste text here..."
+                                              maxlength="5000"></textarea>
+                                    <div class="mt-2">
+                                        <button type="button" class="btn btn--secondary btn-sm me-2" id="clearInput">
+                                            <i class="bi bi-trash me-1"></i>Clear
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="form-label">Translation</label>
+                                        <small class="text-muted" id="translationTime"></small>
+                                    </div>
+                                    <div class="translation-output" id="translationOutput">
+                                        <div class="placeholder-text">
+                                            <i class="bi bi-translate display-4 text-muted"></i>
+                                            <p class="text-muted">Your translation will appear here</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <button type="button" class="btn btn--secondary btn-sm me-2" id="copyTranslation" disabled>
+                                            <i class="bi bi-clipboard me-1"></i>Copy
+                                        </button>
+                                        <button type="button" class="btn btn--secondary btn-sm" id="clearOutput" disabled>
+                                            <i class="bi bi-trash me-1"></i>Clear
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Translate Button -->
+                        <div class="row mt-3">
+                            <div class="col-12 text-center">
+                                <button type="button" class="btn btn--primary btn-lg" id="translateBtn" disabled>
+                                    <span class="spinner-border spinner-border-sm me-2 d-none" id="loadingSpinner"></span>
+                                    <i class="bi bi-translate me-2" id="translateIcon"></i>
+                                    <span id="translateBtnText">Translate</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Translation History -->
+        <section class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <button class="btn btn--outline btn-sm" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#historyCollapse" aria-expanded="false" aria-controls="historyCollapse">
+                            <i class="bi bi-clock-history me-2"></i>Translation History
+                        </button>
+                    </div>
+                    <div class="collapse" id="historyCollapse">
+                        <div class="card-body">
+                            <div id="translationHistory">
+                                <div class="text-center text-muted">
+                                    <i class="bi bi-clock-history display-4"></i>
+                                    <p class="mt-2">No translations yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Alerts Container -->
+        <div id="alertsContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0 text-muted">
+                Powered by <strong>Sarvam AI</strong> | Built with ❤️ for Indian languages | AJAY NUNUGOPPULA
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="app.js"></script>
+</body>
+</html>
